@@ -1,5 +1,5 @@
 #!/bin/bash
-mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
+mv -f /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 cp weather/nginx.conf /etc/nginx/nginx.conf
 service nginx start
 crontab weather/cron.txt
