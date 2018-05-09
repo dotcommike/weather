@@ -4,6 +4,7 @@ Assumptions:
 - This template is used in us-east-1.  If it is used in a different region, it has to be updated accordingly, including the AMI that is referenced for the EC2 instance.
 - There is a key pair titled "virginia" in the region where the teplate is used.
 - A cronjob is used to send out the mailings.  This is (badly) running as root and is configured to run at midnight (server-time) daily.
+- nginx was used as a proxy between the browser and the Django application.  This can likely be replaced by the functionality provided by an ALB instead, if desired.
 
 What can be done better (this will be a long list, not necessarily in any order):
 - A single web server instance should be replaced with at least three spread across different AZs in an auto-scale group where, paired with an ELB, unhealthy instances can be terminated and replaced with healthy ones automatically.  In combination with CloudWatch Health Checks (based on CPU, etc.), proper scaling up and down based on load can be accomplished.
