@@ -7,7 +7,7 @@ Assumptions:
 - nginx was used as a proxy between the browser and the Django application.  This can likely be replaced by the functionality provided by an ALB instead, if desired.
 
 Further Improvements (not necessarily in order):
-- A single web server instance should be replaced with at least three spread across different AZs in an auto-scale group where, paired with an ELB, unhealthy instances can be terminated and replaced with healthy ones automatically.  In combination with CloudWatch Health Checks (based on CPU, etc.), proper scaling up and down based on load can be accomplished.
+- A single web server instance should be replaced with at least three EC2 instances, or better yet Docker tasks, spread across different AZs in an auto-scale group where, paired with an ELB, unhealthy instances can be terminated and replaced with healthy ones automatically.  In combination with CloudWatch Health Checks (based on CPU, etc.), proper scaling up and down based on load can be accomplished.
 - The database should be moved to RDS rather than being run locally.
 - The API key for Weather Underground should be stored in Parameter Stored and requested at EC2 instance launch.  (It's very BAD that it's currently in GitHub.)  There are a lot of opportunities for variables in the template to be parameterized.
 - Should script the creation of the admin user.  Currently you need to log in to the EC2 instance after provisioning to run the command.
