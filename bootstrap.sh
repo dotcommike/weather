@@ -1,3 +1,4 @@
+#!/bin/bash
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 cp weather/nginx.conf /etc/nginx/nginx.conf
 service nginx start
