@@ -322,15 +322,29 @@
  						"crontab weather/cron.txt\n",
  						"git clone https://github.com/rghunter/weatherapp.git\n",
  						"mv weatherapp/ /home/ec2-user/\n",
- 						"/usr/local/bin/pip install --upgrade pip\n",
- 						"/usr/local/bin/pip install -r /home/ec2-user/weatherapp/requirements.txt\n",
- 						"python /home/ec2-user/weatherapp/manage.py /home/ec2-user/weatherapp/migrate\n",
- 						"python /home/ec2-user/weatherapp/manage.py /home/ec2-user/weatherapp/loadlocations\n"
+ 						"/usr/bin/pip install -r /home/ec2-user/weatherapp/requirements.txt\n",
+ 						"/usr/bin/python /home/ec2-user/weatherapp/manage.py migrate\n",
+ 						"/usr/bin/python /home/ec2-user/weatherapp/manage.py loadlocations\n",
+ 						"sed -i '73i WUNDERGROUND_API_KEY = '\"'a08c8620e0bc1469'\"'' /home/ec2-user/weatherapp/weatherapp/settings.py\n",
+ 						"chown -R ec2-user /home/ec2-user\n",
+ 						"chgrp -R ec2-user /home/ec2-user\n",
+ 						"echo \"python /home/ec2-user/weatherapp/manage.py runserver&\" >> /etc/rc.local\n",
+ 						"reboot now\n"
               		]]
               	}
-          }
+          	}
       	}
+
     }
  
-    }
+    },
+
+    "Outputs" : {
+
+        "weatherwebURL" : {
+        	"Description" : "Public hostname for weab pplication",
+        	"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "weatherweb", "PublicDnsName"] } , "/" ] ] }
+        }
+
+  	}
 }
