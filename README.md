@@ -9,6 +9,7 @@ What can be done better (this will be a long list, not necessarily in any order)
 - A single web server instance should be replaced with at least three spread across different AZs in an auto-scale group where, paired with an ELB, unhealthy instances can be terminated and replaced with healthy ones automatically.  In combination with CloudWatch Health Checks (based on CPU, etc.), proper scaling up and down based on load can be accomplished.
 - The database should be moved to RDS rather than being run locally.
 - The API key for Weather Underground should be stored in Parameter Stored and requested at EC2 instance launch.  In fact a lot of data in the template should be parameterized.
+- Should script the creation of the admin user.  Currently you need to log in to the EC2 instance after provisioning to run the command.
 - In order to support auto-scaling, the provisioning that is currently being performed in UserData should be moved to a Launch Configuration.
 - Any external depenendies (i.e. nginx.conf) should be stored in an S3 bucket and during provisioning should be accessed using an IAM role that has access, instead of being stored in GitHub.
 - In the application, DEBUG = True, ALLOWED_HOSTS properly defined, and a new randomly generated value should be used for SECRET_KEY (I need to brush up on my sed / awk skills).
