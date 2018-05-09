@@ -2,6 +2,20 @@
 	"AWSTemplateFormatVersion" : "2010-09-09",
 	"Description" : "Weather App CloudFormation Demo",
 
+	"Parameters" : {
+  		
+  		"WUAPIKey" : {
+    		"Type" : "String",
+    		"Default" : "a08c8620e0bc1469",
+    		"Description" : "Enter the Weather Underground API key."
+  		},
+  		"AllowSSHIP" : {
+  			"Type" : "String",
+  			"Default" : "76.118.16.209/32",
+  			"Description" : "Enter the IP address(es) that you would like to be able to SSH from."
+  		}
+  	},
+
 	"Resources" : {
 
 		"VPC" : {
@@ -276,8 +290,8 @@
 	                 	"IpProtocol" : "tcp",
                    		"ToPort" : "22",
                      	"FromPort" : "22",
-	                  	"CidrIp" : "76.118.16.209/32",
-	                    "Description" : "Allow SSH from Mikes apartment"
+	                  	"CidrIp" : { "Ref" : "AllowSSHIP" },
+	                    "Description" : "Allow SSH"
                		},
                		{
 	                 	"IpProtocol" : "tcp",
@@ -326,7 +340,7 @@
  						"/usr/bin/pip install -r /home/ec2-user/weatherapp/requirements.txt\n",
  						"/usr/bin/python /home/ec2-user/weatherapp/manage.py migrate\n",
  						"/usr/bin/python /home/ec2-user/weatherapp/manage.py loadlocations\n",
- 						"sed -i '73i WUNDERGROUND_API_KEY = '\"'a08c8620e0bc1469'\"'' /home/ec2-user/weatherapp/weatherapp/settings.py\n",
+ 						"sed -i '73i WUNDERGROUND_API_KEY = '\"'{ \"Ref\" : \"WUAPIKey\" }'\"'' /home/ec2-user/weatherapp/weatherapp/settings.py\n",
  						"chown -R ec2-user /home/ec2-user\n",
  						"chgrp -R ec2-user /home/ec2-user\n",
  						"echo \"python /home/ec2-user/weatherapp/manage.py runserver&\" >> /etc/rc.local\n",
@@ -335,16 +349,41 @@
               	}
           	}
       	}
+      },
 
-    }
- 
+      "ELB" : {
+      		"Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      		"Properties" : {
+      			"Subnets" : [ { "Ref" : "SubnetPublic1c" }, { "Ref" : "SubnetPublic1d" }, { "Ref" : "SubnetPublic1e" }  ],
+      			"Instances" : [ { "Ref" : "weatherweb" } ], 
+      			"SecurityGroups": [ { "Ref" : "PrimarySecurityGroup" } ],
+      			"Listeners" : [ {
+      				"LoadBalancerPort" : "80",
+      				"InstancePort" : "80",
+      				"Protocol" : "HTTP"
+      			} ],
+      			"HealthCheck" : {
+      				"Target" : "HTTP:80/",
+     				"HealthyThreshold" : "3",
+     				"UnhealthyThreshold" : "5",
+      				"Interval" : "30",
+      				"Timeout" : "5"
+    			}
+      		}
+      	}
+
     },
 
     "Outputs" : {
 
-        "weatherwebURL" : {
-        	"Description" : "Public hostname for weab pplication",
+        "instanceURL" : {
+        	"Description" : "Public URL for EC2 instance",
         	"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "weatherweb", "PublicDnsName"] } , "/" ] ] }
+        },
+
+        "elbURL" : {
+        	"Description" : "Public URL for ELB",
+        	"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ELB", "DNSName"] } , "/" ] ] }
         }
 
   	}
