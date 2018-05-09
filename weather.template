@@ -1,0 +1,336 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+	"Description" : "Weather App CloudFormation Demo",
+
+	"Resources" : {
+
+		"VPC" : {
+			"Type" : "AWS::EC2::VPC",
+			"Properties" : {
+				"CidrBlock" : "172.16.0.0/16",
+				"EnableDnsSupport" : true,
+				"EnableDnsHostnames" : true,
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1-172.16.0.0" } ]
+			}
+		},
+
+		"SubnetPublic1c" : {
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC"},
+				"CidrBlock" : "172.16.1.0/24",
+				"AvailabilityZone" : "us-east-1c",
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1c-172.16.1.0-public" } ]
+			}
+		},
+
+		"SubnetPublic1d" : {
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC" },
+				"CidrBlock" : "172.16.2.0/24",
+				"AvailabilityZone" : "us-east-1d",
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1d-172.16.2.0-public" } ]
+			}
+		},
+
+		"SubnetPublic1e" : {
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC" },
+				"CidrBlock" : "172.16.3.0/24",
+				"AvailabilityZone" : "us-east-1e",
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1e-172.16.3.0-public" } ]
+			}
+		},
+
+		"SubnetPrivate1c" : {
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC" },
+				"CidrBlock" : "172.16.11.0/24",
+				"AvailabilityZone" : "us-east-1c",
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1c-172.16.11.0-private" } ]
+			}
+		},
+
+		"SubnetPrivate1d" : {
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC" },
+				"CidrBlock" : "172.16.12.0/24",
+				"AvailabilityZone" : "us-east-1d",
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1d-172.16.12.0-private" } ]
+			}
+		},
+
+		"SubnetPrivate1e" : {
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC" },
+				"CidrBlock" : "172.16.13.0/24",
+				"AvailabilityZone" : "us-east-1e",
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1e-172.16.13.0-private" } ]
+			}
+		},
+
+		"InternetGateway" : {
+			"Type" : "AWS::EC2::InternetGateway",
+			"Properties" : {
+				"Tags" : [ { "Key" : "Name", "Value" : "igw-us-east-1" } ]
+			}
+		},
+
+		"AttachGatewayIGW" : {
+			"Type" : "AWS::EC2::VPCGatewayAttachment",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC" },
+				"InternetGatewayId" : { "Ref" : "InternetGateway" }
+			}
+		},
+
+		"NatGwEip1c" : {
+			"Type" : "AWS::EC2::EIP",
+			"Properties" : {
+				"Domain" : "vpc"
+			}
+		},
+
+		"NatGwEip1d" : {
+			"Type" : "AWS::EC2::EIP",
+			"Properties" : {
+				"Domain" : "vpc"
+			}
+		},
+
+		"NatGwEip1e" : {
+			"Type" : "AWS::EC2::EIP",
+			"Properties" : {
+				"Domain" : "vpc"
+			}
+		},
+
+		"NatGw1c" : {
+			"DependsOn" : "AttachGatewayIGW",
+			"Type" : "AWS::EC2::NatGateway",
+			"Properties" : {
+				"AllocationId" : { "Fn::GetAtt" : [ "NatGwEip1c", "AllocationId" ] },
+				"SubnetId" : { "Ref" : "SubnetPublic1c" },
+				"Tags" : [ { "Key" : "Name", "Value" : "natgw-us-east-1c" } ]
+			}
+		},
+
+		"NatGw1d" : {
+			"DependsOn" : "AttachGatewayIGW",
+			"Type" : "AWS::EC2::NatGateway",
+			"Properties" : {
+				"AllocationId" : { "Fn::GetAtt" : [ "NatGwEip1d", "AllocationId" ] },
+				"SubnetId" : { "Ref" : "SubnetPublic1d" },
+				"Tags" : [ { "Key" : "Name", "Value" : "natgw-us-east-1d" } ]
+			}
+		},
+
+		"NatGw1e" : {
+			"DependsOn" : "AttachGatewayIGW",
+			"Type" : "AWS::EC2::NatGateway",
+			"Properties" : {
+				"AllocationId" : { "Fn::GetAtt" : [ "NatGwEip1e", "AllocationId" ] },
+				"SubnetId" : { "Ref" : "SubnetPublic1e" },
+				"Tags" : [ { "Key" : "Name", "Value" : "natgw-us-east-1e" } ]
+			}
+		},
+
+		"RouteTablePublic" : {
+			"Type" : "AWS::EC2::RouteTable",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC"},
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1-public" } ]
+			}
+		},
+
+		"RouteTablePrivate1c" : {
+			"Type" : "AWS::EC2::RouteTable",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC"},
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1c-private" } ]
+			}
+		},
+
+		"RouteTablePrivate1d" : {
+			"Type" : "AWS::EC2::RouteTable",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC"},
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1d-private" } ]
+			}
+		},
+
+		"RouteTablePrivate1e" : {
+			"Type" : "AWS::EC2::RouteTable",
+			"Properties" : {
+				"VpcId" : { "Ref" : "VPC"},
+				"Tags" : [ { "Key" : "Name", "Value" : "us-east-1e-private" } ]
+			}
+		},
+		
+		"RouteDefaultPublic" : {
+			"Type" : "AWS::EC2::Route",
+			"DependsOn" : "AttachGatewayIGW",
+			"Properties" : {
+				"RouteTableId" : { "Ref" : "RouteTablePublic" },
+				"DestinationCidrBlock" : "0.0.0.0/0",
+				"GatewayId" : { "Ref" : "InternetGateway" }
+			}
+		},
+
+		"RouteDefaultPrivate1c" : {
+			"Type" : "AWS::EC2::Route",
+			"DependsOn" : "NatGw1c",
+			"Properties" : {
+				"RouteTableId" : { "Ref" : "RouteTablePrivate1c" },
+				"DestinationCidrBlock" : "0.0.0.0/0",
+				"NatGatewayId" : { "Ref" : "NatGw1c" }
+			}
+		},
+
+		"RouteDefaultPrivate1d" : {
+			"Type" : "AWS::EC2::Route",
+			"DependsOn" : "NatGw1d",
+			"Properties" : {
+				"RouteTableId" : { "Ref" : "RouteTablePrivate1d" },
+				"DestinationCidrBlock" : "0.0.0.0/0",
+				"NatGatewayId" : { "Ref" : "NatGw1d" }
+			}
+		},
+
+		"RouteDefaultPrivate1e" : {
+			"Type" : "AWS::EC2::Route",
+			"DependsOn" : "NatGw1e",
+			"Properties" : {
+				"RouteTableId" : { "Ref" : "RouteTablePrivate1e" },
+				"DestinationCidrBlock" : "0.0.0.0/0",
+				"NatGatewayId" : { "Ref" : "NatGw1e" }
+			}
+		},
+  
+		"SubnetRouteTableAssociationPublic1c" : {
+			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties" : {
+				"SubnetId" : { "Ref" : "SubnetPublic1c" },
+				"RouteTableId" : { "Ref" : "RouteTablePublic" }
+			}
+		},
+
+		"SubnetRouteTableAssociationPublic1d" : {
+			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties" : {
+				"SubnetId" : { "Ref" : "SubnetPublic1d" },
+				"RouteTableId" : { "Ref" : "RouteTablePublic" }
+			}
+		},
+
+		"SubnetRouteTableAssociationPublic1e" : {
+			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties" : {
+				"SubnetId" : { "Ref" : "SubnetPublic1e" },
+				"RouteTableId" : { "Ref" : "RouteTablePublic" }
+			}
+		},
+
+		"SubnetRouteTableAssociationPrivate1c" : {
+			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties" : {
+				"SubnetId" : { "Ref" : "SubnetPrivate1c" },
+				"RouteTableId" : { "Ref" : "RouteTablePrivate1c" }
+			}
+		},
+
+		"SubnetRouteTableAssociationPrivate1d" : {
+			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties" : {
+				"SubnetId" : { "Ref" : "SubnetPrivate1d" },
+				"RouteTableId" : { "Ref" : "RouteTablePrivate1d" }
+			}
+		},
+
+		"SubnetRouteTableAssociationPrivate1e" : {
+			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties" : {
+				"SubnetId" : { "Ref" : "SubnetPrivate1e" },
+				"RouteTableId" : { "Ref" : "RouteTablePrivate1e" }
+			}
+		},
+  
+  		"PrimarySecurityGroup" : {
+      		"Type" : "AWS::EC2::SecurityGroup",
+        	"Properties" : {
+           		"GroupName" : "PrimarySecurityGroup",
+           		"GroupDescription" : "Primary security group for VPC",
+             	"VpcId" : { "Ref" : "VPC" },
+              	"SecurityGroupIngress" : [
+                 	{
+	                 	"IpProtocol" : "-1",
+	                  	"CidrIp" : "172.16.0.0/16",
+	                    "Description" : "Local VPC"
+               		},
+                    {
+	                 	"IpProtocol" : "tcp",
+                   		"ToPort" : "22",
+                     	"FromPort" : "22",
+	                  	"CidrIp" : "76.118.16.209/32",
+	                    "Description" : "Allow SSH from Mikes apartment"
+               		},
+               		{
+	                 	"IpProtocol" : "tcp",
+                   		"ToPort" : "80",
+                     	"FromPort" : "80",
+	                  	"CidrIp" : "0.0.0.0/0",
+	                    "Description" : "Allow Access to Web Server"
+               		}  
+              	]
+         	}
+    	},
+
+     	"weatherweb" : {
+        	"Type" : "AWS::EC2::Instance",
+         	"Properties" : {
+            	"InstanceType" : "t2.micro",
+            	"ImageId" : "ami-467ca739",
+             	"KeyName" : "virginia",
+              	"BlockDeviceMappings" : [
+                	{
+                   		"DeviceName" : "/dev/xvda",
+                     	"Ebs" : { "VolumeSize" : "20", "VolumeType" : "gp2", "DeleteOnTermination" : "false" }
+                 	} 
+               	],
+            	"AvailabilityZone" : "us-east-1c", 
+             	"NetworkInterfaces": [ {
+      				"AssociatePublicIpAddress": "true",
+      				"DeviceIndex": "0",
+      				"GroupSet": [ { "Ref" : "PrimarySecurityGroup" } ],
+      				"SubnetId": { "Ref" : "SubnetPublic1c" }
+    			} ],
+              	"Tags" : [ { "Key" : "Name", "Value" : "weatherweb" } ],
+              	"UserData" : {
+              		"Fn::Base64" : { "Fn::Join" : ["", [
+              			"#!/bin/bash -xe\n",
+              			"yum update -y\n",
+              			"yum install nginx git -y\n",
+ 						"git clone https://github.com/dotcommike/weather.git\n",
+ 						"mv -f /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig\n",
+ 						"cp weather/nginx.conf /etc/nginx/nginx.conf\n",
+ 						"service nginx start\n",
+ 						"crontab weather/cron.txt\n",
+ 						"git clone https://github.com/rghunter/weatherapp.git\n",
+ 						"mv weatherapp/ /home/ec2-user/\n",
+ 						"/usr/local/bin/pip install --upgrade pip\n",
+ 						"/usr/local/bin/pip install -r /home/ec2-user/weatherapp/requirements.txt\n",
+ 						"python /home/ec2-user/weatherapp/manage.py /home/ec2-user/weatherapp/migrate\n",
+ 						"python /home/ec2-user/weatherapp/manage.py /home/ec2-user/weatherapp/loadlocations\n"
+              		]]
+              	}
+          }
+      	}
+    }
+ 
+    }
+}
