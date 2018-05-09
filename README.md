@@ -20,6 +20,7 @@ What can be done better (this will be a long list, not necessarily in any order)
 - The application's email functionality should be updated so that it sends from a valid "From:" email address and uses a third-party service for relay (i.e. SES) instead of sending directly from the EC2 instance as it will almost certainly go to spam.  As currently configured destination mail servers may not even accept messages, though sendmail on the EC2 instance will try to send it.
 - The applications (i.e. nginx, Python-based web server) should be configured to run as unprivileged users (i.e. not root, but instead something like www-data).
 - Log files should be shipped to an external provider (syslog, ELK stack, etc.).
-- CloudWatch (or other equivalent) monitoring should be configured for CPU, disk latency, etc.  Custom Metrics should be used to measure health inside the instance (i.e. free memory, free disk space, etc.).
+- CloudWatch (or other equivalent) monitoring should be configured for CPU, disk latency, etc.  Custom Metrics should be used to measure health inside the instance (i.e. free memory, free disk space, etc.). External monitors should also be added to similuate the customer experience.
+- Backups will need to be scheduled of data that is persistent (i.e. the database).  This can include scheduling regular snapshots of the database itself (i.e. RDS or file-system based).
 
 With additional time these can all be accomplished.
