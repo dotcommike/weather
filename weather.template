@@ -318,6 +318,7 @@
  						"git clone https://github.com/dotcommike/weather.git\n",
  						"mv -f /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig\n",
  						"cp weather/nginx.conf /etc/nginx/nginx.conf\n",
+ 						"chkconfig nginx on\n",
  						"service nginx start\n",
  						"crontab weather/cron.txt\n",
  						"git clone https://github.com/rghunter/weatherapp.git\n",
